@@ -1,87 +1,92 @@
 extern crate alloc;
-use alloc::vec::Vec;
 use alloc::boxed::Box;
 use alloc::string::String;
+use alloc::vec::Vec;
 
-
-#[derive(Debug, PartialEq)]
-pub struct Body(Vec<Expr>);
-
-#[derive(Debug, PartialEq)]
-pub enum Expr {
-    Value(Value),
-    Assignment(Assignment),
-    WhileLoop(WhileLoop)
+macro_rules! token {
+    ($name:ident -> $($t:ty),+) => (
+        #[derive(Debug, PartialEq, Clone)]
+        pub struct $name($(pub $t, )+);
+    );
+    ($name:ident { $($i:ident -> $($t:ty),+);+ } ) => (
+        #[derive(Debug, PartialEq, Clone)]
+        pub enum $name {
+            $($i($($t, )+), )+
+        }
+    );
+    ($name:ident { $($i:ident);+} ) => (
+        #[derive(Debug, PartialEq, Clone)]
+        pub enum $name {
+            $($i, )+
+        }
+    );
 }
 
-#[derive(Debug, PartialEq)]
-pub struct Comment(String);
+token!(Body -> Vec<Expr>);
 
-#[derive(Debug, PartialEq)]
-pub struct ForeignFunction(String);
+token!(Expr {
+    Value -> Value;
+    Assignment -> Assignment;
+    FunctionDef -> FunctionDef;
+    ClassDef -> ClassDef;
+    WhileLoop -> WhileLoop
+});
 
-#[derive(Debug, PartialEq)]
-pub struct Function(Vec<String>, Box<Body>);
+token!(ForeignFunction -> Box<Value>);
 
-#[derive(Debug, PartialEq)]
-pub enum Call {
-    Method(DotName, Vec<Value>),
-    Function(Box<Value>, Vec<Value>)
-}
+token!(ClassDef -> Value, Body);
+token!(FunctionDef -> Value, Function);
 
-#[derive(Debug, PartialEq)]
-pub struct DotName(Box<Value>, Vec<String>);
+token!(Function -> Vec<Value>, Body);
 
-#[derive(Debug, PartialEq)]
-pub struct IndexName(Vec<Value>);
+token!(Call {
+    Method -> Box<Value>, Vec<Value>;
+    Function -> Box<Value>, Vec<Value>
+});
 
-#[derive(Debug, PartialEq)]
-pub enum Assignment {
-    Name(String, Box<Value>),
-    DotName(String, DotName),
-    IndexName(String, IndexName)
-}
+token!(DotName -> Box<Value>, Vec<Value>);
 
-#[derive(Debug, PartialEq)]
-pub struct WhileLoop(Box<Value>, Box<Body>);
+token!(IndexName -> Vec<Value>);
 
-#[derive(Debug, PartialEq)]
-pub enum Value {
-    IndexName(IndexName),
-    DotName(DotName),
-    Call(Call),
-    Name(String),
-    Number(Number),
-    String(String),
-    Bool(Bool),
-    Group(Group),
-    Function(Function),
-    ForeignFunction(ForeignFunction),
-}
+token!(Assignment {
+    Name -> Box<Value>, Box<Value>;
+    DotName -> Box<Value>, Box<Value>;
+    IndexName -> Box<Value>, Box<Value>
+});
 
-#[derive(Debug, PartialEq)]
-pub enum Math {
-    Multiply(Box<Value>, Box<Value>),
-    Divide(Box<Value>, Box<Value>),
-    Add(Box<Value>, Box<Value>),
-    Subtract(Box<Value>, Box<Value>),
-    Modulus(Box<Value>, Box<Value>),
-    Greater(Box<Value>, Box<Value>),
-    Less(Box<Value>, Box<Value>),
-    Equal(Box<Value>, Box<Value>),
-    NotEqual(Box<Value>, Box<Value>),
-    LessEqual(Box<Value>, Box<Value>),
-    GreaterEqual(Box<Value>, Box<Value>)
-}
+token!(WhileLoop -> Box<Value>, Body);
 
-#[derive(Debug, PartialEq)]
-pub enum Bool {
-    True, False
-}
+token!(Value {
+    IndexName -> IndexName;
+    DotName -> DotName;
+    Call -> Call;
+    Name -> String;
+    Number -> Number;
+    String -> String;
+    Bool -> Bool;
+    Group -> Group;
+    Function -> Function;
+    ForeignFunction -> ForeignFunction
+});
 
-#[derive(Debug, PartialEq)]
-pub struct Number(String);
+token!(Math {
+    Multiply -> Box<Value>, Box<Value>;
+    Divide -> Box<Value>, Box<Value>;
+    Subtract -> Box<Value>, Box<Value>;
+    Modulus -> Box<Value>, Box<Value>;
+    Greater -> Box<Value>, Box<Value>;
+    Less -> Box<Value>, Box<Value>;
+    Equal -> Box<Value>, Box<Value>;
+    NotEqual -> Box<Value>, Box<Value>;
+    LessEqual -> Box<Value>, Box<Value>;
+    GreaterEqual -> Box<Value>, Box<Value>
+});
 
-#[derive(Debug, PartialEq)]
-pub struct Group(Box<Expr>);
+token!(Bool {
+    True;
+    False
+});
 
+token!(Number -> String);
+
+token!(Group -> Box<Expr>);

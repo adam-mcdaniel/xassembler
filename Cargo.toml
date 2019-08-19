@@ -9,4 +9,5 @@ name = "xassembler"
 path = "src/bin.rs"
 
 [dependencies]
-nom = "5.0.0"
+pom = "3.0.2"
+regex = "1.2.1"
