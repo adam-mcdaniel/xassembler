@@ -1,22 +1,33 @@
 extern crate xassembler;
 use xassembler::*;
 
-
 fn main() {
     println!(
         "{:#?}",
-        body().parse(br#"
-testing.test["string"]["test"][5]
-"#)
-//         body().parse(br#"
+        body().parse(
+            br#"
+struct Point {
+    fn new(self, x, y) {
+        self.goto(x, y)
+        self
+    }
 
-// FUNCTION = fn(test, hey, jude) {
-//     "testing"
-// }
+    fn goto(self, x, y) {
+        self.x = add(x, self.x)
+        self.y = add(y, self.y)
+    }
+}
+
+point = (Point()).new(test.test, 5);
 
 
-// hey(dude)
+fn testing() {
+    println("Testing!");
+}
 
-// "#)
+
+testing = (fn() { println("testing!") })
+"#
+        )
     );
 }

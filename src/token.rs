@@ -1,8 +1,7 @@
 extern crate alloc;
-use alloc::vec::Vec;
 use alloc::boxed::Box;
 use alloc::string::String;
-
+use alloc::vec::Vec;
 
 macro_rules! token {
     ($name:ident -> $($t:ty),+) => (
@@ -23,34 +22,36 @@ macro_rules! token {
     );
 }
 
-
 token!(Body -> Vec<Expr>);
 
 token!(Expr {
     Value -> Value;
     Assignment -> Assignment;
+    FunctionDef -> FunctionDef;
+    ClassDef -> ClassDef;
     WhileLoop -> WhileLoop
 });
 
-token!(Comment -> String);
+token!(ForeignFunction -> Box<Value>);
 
-token!(ForeignFunction -> String);
+token!(ClassDef -> Value, Body);
+token!(FunctionDef -> Value, Function);
 
-token!(Function -> Vec<String>, Body);
+token!(Function -> Vec<Value>, Body);
 
 token!(Call {
-    Method -> DotName, Vec<Value>;
+    Method -> Box<Value>, Vec<Value>;
     Function -> Box<Value>, Vec<Value>
 });
 
-token!(DotName -> Box<Value>, Vec<String>);
+token!(DotName -> Box<Value>, Vec<Value>);
 
 token!(IndexName -> Vec<Value>);
 
 token!(Assignment {
-    Name -> String, Box<Value>;
-    DotName -> DotName, Box<Value>;
-    IndexName -> IndexName, Box<Value>
+    Name -> Box<Value>, Box<Value>;
+    DotName -> Box<Value>, Box<Value>;
+    IndexName -> Box<Value>, Box<Value>
 });
 
 token!(WhileLoop -> Box<Value>, Body);
@@ -89,4 +90,3 @@ token!(Bool {
 token!(Number -> String);
 
 token!(Group -> Box<Expr>);
-
