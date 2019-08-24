@@ -3,7 +3,7 @@ use core::fmt;
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub enum Error {
-    InvalidFunctionName
+    InvalidFunctionName,
 }
 
 pub trait Compile {
@@ -69,7 +69,11 @@ pub fn while_loop(condition: impl ToString, body: impl ToString) -> String {
     )
 }
 
-pub fn if_then_else(condition: impl ToString, then_fn: impl ToString, else_fn: impl ToString) -> String {
+pub fn if_then_else(
+    condition: impl ToString,
+    then_fn: impl ToString,
+    else_fn: impl ToString,
+) -> String {
     format!(
         "{else_fn}{then_fn}{condition}{MACHINE}.if_then_else();",
         MACHINE = MACHINE_NAME,

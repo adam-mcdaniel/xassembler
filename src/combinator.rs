@@ -98,12 +98,11 @@ pub fn while_loop() -> Parser<Expr> {
 }
 
 pub fn if_then_else() -> Parser<Expr> {
-    ((((seq_no_ws("if") >> value()) & rec(suite))
-        & opt(seq_no_ws("else") >> rec(suite)))
+    ((((seq_no_ws("if") >> value()) & rec(suite)) & opt(seq_no_ws("else") >> rec(suite)))
         - |((condition, then_body), else_body_opt)| {
             let else_body = match else_body_opt {
                 Some(body) => body,
-                None => Suite(Vec::new())
+                None => Suite(Vec::new()),
             };
 
             Expr::IfThenElse(condition, then_body, else_body)

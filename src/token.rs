@@ -90,11 +90,9 @@ pub enum Value {
 impl Compile for Value {
     fn compile(self) -> Result<String, Error> {
         match self {
-            Self::Name(name) => {
-                match name {
-                    Name::Name(n) => n.compile().and_then(|n| Ok(load(n))),
-                    otherwise => otherwise.compile()
-                }
+            Self::Name(name) => match name {
+                Name::Name(n) => n.compile().and_then(|n| Ok(load(n))),
+                otherwise => otherwise.compile(),
             },
             Self::Literal(l) => l.compile(),
             Self::FnCall(f) => f.compile(),
@@ -133,18 +131,18 @@ pub enum Expr {
 impl Compile for Expr {
     fn compile(self) -> Result<String, Error> {
         match self {
-            Self::Assignment(name, value) => {
-                match name {
-                    Name::Name(n) => Ok(store(copy(value.compile()?) + &n.compile()?)),
-                    otherwise => Ok(assign(copy(value.compile()?) + &otherwise.compile()?)),
-                }
+            Self::Assignment(name, value) => match name {
+                Name::Name(n) => Ok(store(copy(value.compile()?) + &n.compile()?)),
+                otherwise => Ok(assign(copy(value.compile()?) + &otherwise.compile()?)),
             },
             Self::WhileLoop(condition, body) => {
                 Ok(while_loop(condition.compile()?, body.compile()?))
-            },
-            Self::IfThenElse(condition, then_body, else_body) => {
-                Ok(if_then_else(condition.compile()?, then_body.compile()?, else_body.compile()?))
             }
+            Self::IfThenElse(condition, then_body, else_body) => Ok(if_then_else(
+                condition.compile()?,
+                then_body.compile()?,
+                else_body.compile()?,
+            )),
             Self::FunctionDef(function_def) => Ok(function_def.compile()?),
             Self::StructDef(struct_def) => Ok(struct_def.compile()?),
             Self::Value(value) => Ok(value.compile()?),
@@ -187,9 +185,7 @@ impl Compile for StructDef {
                 let result_name;
 
                 match name {
-                    Name::DotName(_, other_names) => {
-                        result_name = other_names.clone()
-                    }
+                    Name::DotName(_, other_names) => result_name = other_names.clone(),
                     Name::Name(ident) => {
                         result_name = vec![ident.clone()];
                     }
@@ -198,7 +194,7 @@ impl Compile for StructDef {
                         result_name = vec![Identifier("BAD".to_string())];
                     }
                 }
-                
+
                 FunctionDef(
                     Name::DotName(
                         Box::new(Value::Name(Name::Name(Identifier("self".to_string())))),

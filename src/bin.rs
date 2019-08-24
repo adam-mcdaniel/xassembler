@@ -223,8 +223,9 @@ fn main() {{
 
 
 }}",
-        program().parse(
-            r#"
+        program()
+            .parse(
+                r#"
 
 
 class List {
@@ -274,11 +275,13 @@ while n {
 println(l)
 
 "#
-        ).unwrap().compile().unwrap().replace(";", ";\n")
+            )
+            .unwrap()
+            .compile()
+            .unwrap()
+            .replace(";", ";\n")
     )
 }
-
-
 
 // class List {
 //     fn new(self) {
