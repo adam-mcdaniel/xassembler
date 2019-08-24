@@ -2,47 +2,6 @@ extern crate xassembler;
 use xassembler::*;
 
 fn main() {
-    //     println!(
-    //         "{:#?}",
-    //         // (symbol() * (..)).parse("(){}[].,;")
-    //         program().parse(
-    //             r#"
-
-    // struct Point {
-    //     fn new(self, x, y) {
-    //         self.goto(x, y);
-    //         self;
-    //     }
-
-    //     fn goto(self, x, y) {
-    //         self.x = add(x, self.x);
-    //         self.y = add(y, self.y);
-    //     }
-    // }
-
-    // point = (Point()).new(test.test, 5);
-
-    // fn testing() {
-    //     println("Testing!");
-    // }
-
-    // testing = fn() {
-    //     println("testing!");
-    // }
-
-    // point["goto"][testing]
-
-    // "#
-    //         )
-    //     );
-
-    // println!("literal: {:?}", number_literal().parse("1").unwrap().compile());
-    // println!("literal: {:?}", string_literal().parse(r#""testing""#).unwrap().compile());
-    // println!("identifier: {:?}", ident().parse("testing").unwrap().compile());
-    // println!("identifier: {:?}", ((dot_ident(group() | literal() | (ident() - Name::Name - Value::Name)) - |d| Name::DotName(d.0, d.1))
-    //     .parse("test.testing.whoa").unwrap().compile()));
-    // println!("identifier: {:?}", ((index_name(group() | literal() | (ident() - Name::Name - Value::Name)) - |d| Name::IndexName(d.0, d.1))
-    //     .parse(r#"test["testing"][1][letter]"#).unwrap().compile()));
     println!(
         "extern crate xmachine;
 use xmachine::{{Machine, Value, Ref}};
@@ -282,31 +241,3 @@ println(l)
             .replace(";", ";\n")
     )
 }
-
-// class List {
-//     fn new(self) {
-//         self.list = list()
-//         self
-//     }
-//     fn push(self, item) {
-//         self.list = push(self.list, item)
-//     }
-//     fn pop(self) {
-//         self.list = pop(self.list)
-//     }
-// }
-// my_list = new(List)
-// my_list.push(5)
-// my_list.push("juice")
-// println(my_list.pop())
-// my_list.push("jude")
-// a = my_list
-// a.push(new(List))
-// println(a)
-// println(my_list)
-// n = 10000
-// while (n) {
-//     println(n)
-//     n = sub(n, 1)
-// }
-// println("Done!")
