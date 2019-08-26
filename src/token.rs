@@ -1,5 +1,11 @@
 use crate::compile::*;
 
+
+use alloc::vec::Vec;
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
+
+
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub enum Literal {
     String(String),
@@ -26,8 +32,7 @@ impl Compile for FnCall {
             .rev()
             .map(|arg| (arg.clone()).compile().unwrap())
             .map(|arg| copy(arg))
-            .collect::<Vec<String>>()
-            .join("");
+            .collect::<String>();
 
         if let Value::Name(Name::DotName(head, idents)) = (*function).clone() {
             let actual_idents = idents[..idents.len() - 1].to_vec();
@@ -61,8 +66,7 @@ impl Compile for Function {
         let stores = parameters
             .iter()
             .map(|s| store((*s).clone().compile().unwrap()))
-            .collect::<Vec<String>>()
-            .join("\n");
+            .collect::<String>();
 
         Ok(push(func(stores + &body.compile()?)))
     }
@@ -159,8 +163,7 @@ impl Compile for Suite {
         Ok(exprs
             .iter()
             .map(|c| c.clone().compile().unwrap())
-            .collect::<Vec<String>>()
-            .join(""))
+            .collect::<String>())
     }
 }
 

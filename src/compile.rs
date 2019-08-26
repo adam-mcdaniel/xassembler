@@ -1,6 +1,10 @@
 use crate::{Identifier, Value};
 use core::fmt;
 
+use alloc::vec::Vec;
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
+
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub enum Error {
     InvalidFunctionName,

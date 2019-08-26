@@ -5,6 +5,11 @@ use honeycomb::{
     Parser,
 };
 
+
+use alloc::vec::Vec;
+use alloc::boxed::Box;
+use alloc::string::{String, ToString};
+
 use crate::*;
 
 pub fn string_literal() -> Parser<Literal> {

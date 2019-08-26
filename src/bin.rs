@@ -177,7 +177,7 @@ fn main() {{
     xasm.store();
 
 
-{}
+\t{}
     println!(\"{{}}\", xasm);
 
 
@@ -210,34 +210,20 @@ class List {
     }
 }
 
-l = new(List)
+l = list()
 
 
-n = 1000
-
-while n {
-    l.push(n)
-    n = sub(n, 1)
+if l {
+    println("l is true!!")
+} else {
+    println("l does not evaluate to true :(")
 }
-
-n = 100000
-
-while n {
-    n = sub(n, 1)
-    println(n)
-}
-
-
-
-
-
-println(l)
 
 "#
             )
             .unwrap()
             .compile()
             .unwrap()
-            .replace(";", ";\n")
+            .replace(";", ";\n\t")
     )
 }
