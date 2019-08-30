@@ -10,6 +10,7 @@ use alloc::string::{String, ToString};
 pub enum Literal {
     String(String),
     Number(String),
+    ForeignFunction(String),
 }
 
 impl Compile for Literal {
@@ -17,9 +18,11 @@ impl Compile for Literal {
         match self {
             Self::String(s) => Ok(push(string(quote(s)))),
             Self::Number(n) => Ok(push(number(n))),
+            Self::ForeignFunction(f) => Ok(push(foreign_func(f))),
         }
     }
 }
+
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub struct FnCall(pub Box<Value>, pub Vec<Value>);

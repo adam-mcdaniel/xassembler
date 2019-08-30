@@ -1,8 +1,11 @@
 extern crate xassembler;
 use xassembler::compile;
 
+
 fn main() {
     println!("{}", compile_bin(r#"
+
+println = @
 
 class Point {
     fn new(self, x, y) {

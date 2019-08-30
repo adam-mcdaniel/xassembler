@@ -21,9 +21,14 @@ pub fn number_literal() -> Parser<Literal> {
     ((space() >> number() << space()) - Literal::Number) % "a number literal"
 }
 
+/// This parses a foreign function literal
+pub fn foreign_function_literal() -> Parser<Literal> {
+    (space() >> sym('@') >> (identifier() - Literal::ForeignFunction)) % "a foreign function name"
+}
+
 /// This matches either a number or string literal
 pub fn literal() -> Parser<Value> {
-    (string_literal() | number_literal()) - Value::Literal
+    (foreign_function_literal() | string_literal() | number_literal()) - Value::Literal
 }
 
 /// This matches a simple identifier
