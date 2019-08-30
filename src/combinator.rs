@@ -8,7 +8,6 @@ use honeycomb::{
 
 use alloc::vec::Vec;
 use alloc::boxed::Box;
-use alloc::string::{String, ToString};
 
 use crate::*;
 
@@ -52,16 +51,16 @@ pub fn name() -> Parser<Name> {
     // 1) group
     // 2) literal
     // 3) identifier
-    ((dot_ident(group() | literal() | (ident() - Name::Name - Value::Name))
+    (((dot_ident(group() | literal() | (ident() - Name::Name - Value::Name))
         - |d| Name::DotName(d.0, d.1))
         // Accept an indexed name with the head value being one of
         // 1) group
         // 2) literal
         // 3) identifier
         | (index_name(group() | literal() | (ident() - Name::Name - Value::Name))
-            - |d| Name::IndexName(d.0, d.1))
+            - |d| Name::IndexName(d.0, d.1)))
         // Accept an identifier
-        | ident() - Name::Name)
+        | (ident() - Name::Name))
         % "a dotted name, an indexed value, or an identifier"
 }
 
@@ -174,12 +173,12 @@ pub fn if_then_else() -> Parser<Expr> {
 
 /// A fundamental language expression
 pub fn expr() -> Parser<Expr> {
-    (assignment() << opt(seq_no_ws(";"))) % "a valid assignment"
-        | struct_def() - Expr::StructDef
-        | function_def() - Expr::FunctionDef
+    ((assignment() << opt(seq_no_ws(";"))) % "a valid assignment")
+        | (struct_def() - Expr::StructDef)
+        | (function_def() - Expr::FunctionDef)
         | while_loop()
         | if_then_else()
-        | (value() - Expr::Value << opt(seq_no_ws(";"))) % "a value"
+        | (((value() - Expr::Value) << opt(seq_no_ws(";"))) % "a value")
 }
 
 /// A series of instructions enclosed with {}

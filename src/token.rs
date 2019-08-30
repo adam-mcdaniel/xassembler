@@ -1,4 +1,4 @@
-use crate::compile::*;
+use crate::backend::*;
 
 
 use alloc::vec::Vec;
@@ -31,7 +31,7 @@ impl Compile for FnCall {
             .iter()
             .rev()
             .map(|arg| (arg.clone()).compile().unwrap())
-            .map(|arg| copy(arg))
+            .map(copy)
             .collect::<String>();
 
         if let Value::Name(Name::DotName(head, idents)) = (*function).clone() {
@@ -116,8 +116,8 @@ impl Compile for Name {
     fn compile(self) -> Result<String, Error> {
         match self {
             Self::Name(n) => n.compile(),
-            Self::DotName(head, tail) => Ok(dotname(head, tail)),
-            Self::IndexName(head, tail) => Ok(indexname(head, tail)),
+            Self::DotName(head, tail) => Ok(dotname((*head).clone(), tail)),
+            Self::IndexName(head, tail) => Ok(indexname((*head).clone(), tail)),
         }
     }
 }
