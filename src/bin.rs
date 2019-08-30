@@ -210,13 +210,29 @@ class List {
     }
 }
 
-l = list()
 
+l = new(List)
+l.push("test")
+l.push(l)
+l.push(l)
+
+
+println(l)
 
 if l {
     println("l is true!!")
 } else {
     println("l does not evaluate to true :(")
+}
+
+
+n = 1000
+while n {
+    n = sub(n, 1)
+    println(n)
+
+    if n {}
+    else {}
 }
 
 "#
