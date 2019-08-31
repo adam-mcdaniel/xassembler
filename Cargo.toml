@@ -4,10 +4,5 @@ version = "0.1.0"
 authors = ["adam-mcdaniel <adam.mcdanie17@gmail.com>"]
 edition = "2018"
 
-[[bin]]
-name = "xassembler"
-path = "src/bin.rs"
-
 [dependencies]
-pom = "3.0.2"
-regex = "1.2.1"
+honeycomb = "0.1.4"
