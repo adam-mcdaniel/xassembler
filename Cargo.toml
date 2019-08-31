@@ -3,6 +3,12 @@ name = "xassembler"
 version = "0.1.0"
 authors = ["adam-mcdaniel <adam.mcdanie17@gmail.com>"]
 edition = "2018"
+description = "Compiler tools for the xasm programming language"
+readme = "README.md"
+homepage = "https://github.com/adam-mcdaniel/xassembler"
+repository = "https://github.com/adam-mcdaniel/xassembler"
+documentation = "https://docs.rs/xassembler"
+license = "Apache-2.0"
 
 [dependencies]
 honeycomb = "0.1.4"
