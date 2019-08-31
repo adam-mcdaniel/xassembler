@@ -4,8 +4,12 @@ use xassembler::compile;
 
 fn main() {
     println!("{}", compile_bin(r#"
+module = dict
+core = module()
 
-println = @
+core.print = @print
+core.println = @println
+
 
 class Point {
     fn new(self, x, y) {
@@ -27,11 +31,11 @@ class Point {
 
 
 p = new(Point, 3, 2)
-println(p)
+core["println"](p)
 
 p.move(1, 10)
 
-println(p)
+core["println"](p)
 
 
 "#).unwrap());
