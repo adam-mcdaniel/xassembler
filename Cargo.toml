@@ -10,5 +10,9 @@ repository = "https://github.com/adam-mcdaniel/xassembler"
 documentation = "https://docs.rs/xassembler"
 license = "Apache-2.0"
 
+[lib]
+doctest = false
+
 [dependencies]
-honeycomb = "0.1.4"
+honeycomb = "0.1.5"
+

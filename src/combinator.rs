@@ -1,6 +1,6 @@
 extern crate honeycomb;
 use honeycomb::{
-    atoms::{eof, opt, rec, seq_no_ws, space, sym},
+    atoms::{eof, opt, any, rec, seq_no_ws, space, sym},
     language::{array, identifier, number, string},
     Parser,
 };
@@ -193,7 +193,14 @@ pub fn suite() -> Parser<Suite> {
         % "a curly brace enclosed list of expressions"
 }
 
+/// Matches a comment in source code
+pub fn comment() -> Parser<()> {
+    (seq_no_ws("//") >> ((sym('\n').isnt() >> any()) * (..))) - |_| ()
+}
+
 /// A series of expressions
 pub fn program() -> Parser<Suite> {
-    ((expr() * (..)) - Suite) << eof()
+    (((
+            opt(comment() * (..)) >> expr() << opt(comment() * (..))
+        ) * (..)) - Suite) << eof()
 }
