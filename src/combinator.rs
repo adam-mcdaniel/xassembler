@@ -1,13 +1,12 @@
 extern crate honeycomb;
 use honeycomb::{
-    atoms::{eof, opt, any, rec, seq_no_ws, space, sym},
+    atoms::{any, eof, opt, rec, seq_no_ws, space, sym},
     language::{array, identifier, number, string},
     Parser,
 };
 
-
-use alloc::vec::Vec;
 use alloc::boxed::Box;
+use alloc::vec::Vec;
 
 use crate::*;
 
@@ -101,10 +100,7 @@ pub fn flat_value() -> Parser<Value> {
 pub fn recursive_value() -> Parser<Value> {
     // These values are POTENTIALLY recursive
     // They require the use of the `value` parser
-    (function() - Value::Function)
-    | rec(fncall)
-    | (name() - Value::Name)
-    | rec(group)
+    (function() - Value::Function) | rec(fncall) | (name() - Value::Name) | rec(group)
 }
 
 /// This represents an atomic value
@@ -114,10 +110,10 @@ pub fn value() -> Parser<Value> {
 
 /// This represents an anonymous function literal.
 /// A function literal looks like the following:
-/// 
+///
 /// `fn(a, b, c) {}`
-/// 
-/// An anonymous function does not have a name and 
+///
+/// An anonymous function does not have a name and
 /// is basically a lambda expression.
 pub fn function() -> Parser<Function> {
     (seq_no_ws("fn") >> (array("(", ident(), ")") & suite()))
@@ -126,9 +122,9 @@ pub fn function() -> Parser<Function> {
 
 /// This represents a function definition.
 /// A function definition is a function with a name:
-/// 
+///
 /// `fn sum(a, b) {}`
-/// 
+///
 /// It assigns the function value to the name of the
 /// function definition within that scope.
 pub fn function_def() -> Parser<FunctionDef> {
@@ -179,12 +175,14 @@ pub fn if_then_else() -> Parser<Expr> {
 
 /// A fundamental language expression
 pub fn expr() -> Parser<Expr> {
-    ((assignment() << opt(seq_no_ws(";"))) % "a valid assignment")
-        | (struct_def() - Expr::StructDef)
-        | (function_def() - Expr::FunctionDef)
-        | while_loop()
-        | if_then_else()
-        | (((value() - Expr::Value) << opt(seq_no_ws(";"))) % "a value")
+    opt(comment() * (..))
+        >> (((assignment() << opt(seq_no_ws(";"))) % "a valid assignment")
+            | (struct_def() - Expr::StructDef)
+            | (function_def() - Expr::FunctionDef)
+            | while_loop()
+            | if_then_else()
+            | (((value() - Expr::Value) << opt(seq_no_ws(";"))) % "a value"))
+        << opt(comment() * (..))
 }
 
 /// A series of instructions enclosed with {}
@@ -200,7 +198,5 @@ pub fn comment() -> Parser<()> {
 
 /// A series of expressions
 pub fn program() -> Parser<Suite> {
-    (((
-            opt(comment() * (..)) >> expr() << opt(comment() * (..))
-        ) * (..)) - Suite) << eof()
+    ((expr() * (..)) - Suite) << eof()
 }

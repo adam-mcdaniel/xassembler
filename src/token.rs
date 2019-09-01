@@ -1,10 +1,8 @@
 use crate::backend::*;
 
-
-use alloc::vec::Vec;
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
-
+use alloc::vec::Vec;
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub enum Literal {
@@ -22,7 +20,6 @@ impl Compile for Literal {
         }
     }
 }
-
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub struct FnCall(pub Box<Value>, pub Vec<Value>);
