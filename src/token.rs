@@ -108,8 +108,8 @@ impl Compile for Value {
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub enum Name {
     Name(Identifier),
-    DotName(Box<Value>, Vec<Identifier>),
     IndexName(Box<Value>, Vec<Value>),
+    DotName(Box<Value>, Vec<Identifier>),
 }
 
 impl Compile for Name {
