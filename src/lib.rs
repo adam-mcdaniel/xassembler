@@ -16,5 +16,9 @@ pub use compile::*;
 
 mod rust;
 pub use rust::*;
+
+mod golang;
+pub use golang::*;
+
 mod target;
 pub use target::*;
