@@ -37,7 +37,7 @@ impl Target for Golang {
 
     fn func(body: impl ToString) -> String {
         format!(
-            "NewFunction(func({MACHINE} *Machine) {{{func}}}, {MACHINE})",
+            "NewFunction(func({MACHINE} *Machine) {{{func}}}, {MACHINE}.Duplicate())",
             func = body.to_string(),
             MACHINE = MACHINE_NAME
         )
