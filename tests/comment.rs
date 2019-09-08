@@ -1,9 +1,10 @@
 extern crate xassembler;
+use xassembler::{compile, Rust};
 
 #[test]
 fn comment_test() {
     assert_eq!(
-        xassembler::compile(
+        compile::<Rust>(
             r#"
 // hello comments!
 // hello comments!
@@ -13,7 +14,7 @@ println("Testing!") // Other comment!
 "#
         )
         .unwrap(),
-        xassembler::compile(
+        compile::<Rust>(
             r#"
 println("Testing!")
 "#

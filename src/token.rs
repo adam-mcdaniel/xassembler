@@ -1,4 +1,4 @@
-use crate::backend::*;
+use crate::target::*;
 
 use alloc::boxed::Box;
 use alloc::string::{String, ToString};
@@ -11,12 +11,12 @@ pub enum Literal {
     ForeignFunction(String),
 }
 
-impl Compile for Literal {
+impl<T: Target> Compile<T> for Literal {
     fn compile(self) -> Result<String, Error> {
         match self {
-            Self::String(s) => Ok(push(string(quote(s)))),
-            Self::Number(n) => Ok(push(number(n))),
-            Self::ForeignFunction(f) => Ok(push(foreign_func(f))),
+            Self::String(s) => Ok(T::push(T::string(T::quote(s)))),
+            Self::Number(n) => Ok(T::push(T::number(n))),
+            Self::ForeignFunction(f) => Ok(T::push(T::foreign_func(f))),
         }
     }
 }
@@ -24,24 +24,27 @@ impl Compile for Literal {
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub struct FnCall(pub Box<Value>, pub Vec<Value>);
 
-impl Compile for FnCall {
+impl<T: Target> Compile<T> for FnCall {
     fn compile(self) -> Result<String, Error> {
         let FnCall(function, arguments) = self;
         let compiled_args = arguments
             .iter()
             .rev()
-            .map(|arg| (arg.clone()).compile().unwrap())
-            .map(copy)
+            .map(|arg| {
+                let value = arg.clone();
+                Compile::<T>::compile(value).unwrap()
+            })
+            .map(T::copy)
             .collect::<String>();
 
         if let Value::Name(Name::DotName(head, idents)) = (*function).clone() {
             let actual_idents = idents[..idents.len() - 1].to_vec();
             let Identifier(method_name) = &idents[idents.len() - 1];
             Ok(compiled_args
-                + &Name::DotName(head, actual_idents).compile()?
-                + &method_call(string(quote(method_name))))
+                + &Compile::<T>::compile(Name::DotName(head, actual_idents))?
+                + &T::method_call(T::string(T::quote(method_name))))
         } else {
-            Ok(compiled_args + &call(function.compile()?))
+            Ok(compiled_args + &T::call(Compile::<T>::compile((*function).clone())?))
         }
     }
 }
@@ -49,37 +52,37 @@ impl Compile for FnCall {
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Identifier(pub String);
 
-impl Compile for Identifier {
+impl<T: Target> Compile<T> for Identifier {
     fn compile(self) -> Result<String, Error> {
         let Identifier(name) = self;
-        Ok(push(string(quote(name))))
+        Ok(T::push(T::string(T::quote(name))))
     }
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Function(pub Vec<Identifier>, pub Suite);
 
-impl Compile for Function {
+impl<T: Target> Compile<T> for Function {
     fn compile(self) -> Result<String, Error> {
         let Function(parameters, body) = self;
 
         let stores = parameters
             .iter()
-            .map(|s| store((*s).clone().compile().unwrap()))
+            .map(|s| T::store(Compile::<T>::compile((*s).clone()).unwrap()))
             .collect::<String>();
 
-        Ok(push(func(stores + &body.compile()?)))
+        Ok(T::push(T::func(stores + &Compile::<T>::compile(body)?)))
     }
 }
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub struct FunctionDef(pub Name, pub Function);
 
-impl Compile for FunctionDef {
+impl<T: Target> Compile<T> for FunctionDef {
     fn compile(self) -> Result<String, Error> {
         let FunctionDef(name, function) = self;
 
-        Ok(Expr::Assignment(name, Value::Function(function)).compile()?)
+        Ok(Compile::<T>::compile(Expr::Assignment(name, Value::Function(function)))?)
     }
 }
 
@@ -91,16 +94,16 @@ pub enum Value {
     Function(Function),
 }
 
-impl Compile for Value {
+impl<T: Target> Compile<T> for Value {
     fn compile(self) -> Result<String, Error> {
         match self {
             Self::Name(name) => match name {
-                Name::Name(n) => n.compile().and_then(|n| Ok(load(n))),
-                otherwise => otherwise.compile(),
+                Name::Name(n) => Compile::<T>::compile(n).and_then(|n| Ok(T::load(n))),
+                otherwise => Compile::<T>::compile(otherwise),
             },
-            Self::Literal(l) => l.compile(),
-            Self::FnCall(f) => f.compile(),
-            Self::Function(f) => f.compile(),
+            Self::Literal(l) => Compile::<T>::compile(l),
+            Self::FnCall(f) => Compile::<T>::compile(f),
+            Self::Function(f) => Compile::<T>::compile(f),
         }
     }
 }
@@ -112,12 +115,12 @@ pub enum Name {
     DotName(Box<Value>, Vec<Identifier>),
 }
 
-impl Compile for Name {
+impl<T: Target> Compile<T> for Name {
     fn compile(self) -> Result<String, Error> {
         match self {
-            Self::Name(n) => n.compile(),
-            Self::DotName(head, tail) => Ok(dotname((*head).clone(), tail)),
-            Self::IndexName(head, tail) => Ok(indexname((*head).clone(), tail)),
+            Self::Name(n) => Compile::<T>::compile(n),
+            Self::DotName(head, tail) => Ok(T::dotname((*head).clone(), tail)),
+            Self::IndexName(head, tail) => Ok(T::indexname((*head).clone(), tail)),
         }
     }
 }
@@ -132,24 +135,24 @@ pub enum Expr {
     Value(Value),
 }
 
-impl Compile for Expr {
+impl<T: Target> Compile<T> for Expr {
     fn compile(self) -> Result<String, Error> {
         match self {
             Self::Assignment(name, value) => match name {
-                Name::Name(n) => Ok(store(copy(value.compile()?) + &n.compile()?)),
-                otherwise => Ok(assign(copy(value.compile()?) + &otherwise.compile()?)),
+                Name::Name(n) => Ok(T::store(T::copy(Compile::<T>::compile(value)?) + &Compile::<T>::compile(n)?)),
+                otherwise => Ok(T::assign(T::copy(Compile::<T>::compile(value)?) + &Compile::<T>::compile(otherwise)?)),
             },
             Self::WhileLoop(condition, body) => {
-                Ok(while_loop(condition.compile()?, body.compile()?))
+                Ok(T::while_loop(Compile::<T>::compile(condition)?, Compile::<T>::compile(body)?))
             }
-            Self::IfThenElse(condition, then_body, else_body) => Ok(if_then_else(
-                condition.compile()?,
-                then_body.compile()?,
-                else_body.compile()?,
+            Self::IfThenElse(condition, then_body, else_body) => Ok(T::if_then_else(
+                Compile::<T>::compile(condition)?,
+                Compile::<T>::compile(then_body)?,
+                Compile::<T>::compile(else_body)?,
             )),
-            Self::FunctionDef(function_def) => Ok(function_def.compile()?),
-            Self::StructDef(struct_def) => Ok(struct_def.compile()?),
-            Self::Value(value) => Ok(value.compile()?),
+            Self::FunctionDef(function_def) => Ok(Compile::<T>::compile(function_def)?),
+            Self::StructDef(struct_def) => Ok(Compile::<T>::compile(struct_def)?),
+            Self::Value(value) => Ok(Compile::<T>::compile(value)?),
         }
     }
 }
@@ -157,12 +160,12 @@ impl Compile for Expr {
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Suite(pub Vec<Expr>);
 
-impl Compile for Suite {
+impl<T: Target> Compile<T> for Suite {
     fn compile(self) -> Result<String, Error> {
         let Suite(exprs) = self;
         Ok(exprs
             .iter()
-            .map(|c| c.clone().compile().unwrap())
+            .map(|c| Compile::<T>::compile(c.clone()).unwrap())
             .collect::<String>())
     }
 }
@@ -170,7 +173,7 @@ impl Compile for Suite {
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub struct StructDef(pub Name, pub Vec<FunctionDef>);
 
-impl Compile for StructDef {
+impl<T: Target> Compile<T> for StructDef {
     fn compile(self) -> Result<String, Error> {
         let StructDef(name, function_defs) = self;
         let mut exprs = vec![Expr::Assignment(
@@ -216,6 +219,6 @@ impl Compile for StructDef {
 
         let body = Suite(exprs);
         let constructor: Function = Function(vec![], body);
-        Ok(Expr::Assignment(name, Value::Function(constructor)).compile()?)
+        Ok(Compile::<T>::compile(Expr::Assignment(name, Value::Function(constructor)))?)
     }
 }
