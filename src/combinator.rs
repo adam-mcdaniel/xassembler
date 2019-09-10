@@ -12,7 +12,7 @@ use crate::*;
 
 /// This parses a string literal
 pub fn string_literal() -> Parser<Literal> {
-    ((space() >> string() << space()) - Literal::String) % "a string literal"
+    ((space() >> string() << space()) - |s| Literal::String(s.replace("\\", "\\\\"))) % "a string literal"
 }
 
 /// This parses a number literal
