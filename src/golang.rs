@@ -45,7 +45,7 @@ impl Target for Golang {
 
     fn foreign_func(name: impl ToString) -> String {
         format!(
-            "NewFunction({name}, {MACHINE})",
+            "NewFunction({name}, {MACHINE}.Duplicate())",
             name = name.to_string(),
             MACHINE = MACHINE_NAME
         )
