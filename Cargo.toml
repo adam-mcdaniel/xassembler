@@ -1,6 +1,6 @@
 [package]
 name = "xassembler"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["adam-mcdaniel <adam.mcdanie17@gmail.com>"]
 edition = "2018"
 description = "Compiler tools for the xasm programming language"
