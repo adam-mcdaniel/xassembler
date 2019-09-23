@@ -8,6 +8,6 @@ pub fn compile<T: Target>(script: &str) -> Result<String, String> {
             Ok(code_gen) => Ok(code_gen.replace(";", ";\n\t")),
             Err(e) => Err(format!("{:?}", e)),
         },
-        Err(e) => Err(format!("{:?}", e)),
+        Err(e) => Err(format!("{}", e)),
     }
 }

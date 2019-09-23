@@ -52,6 +52,7 @@ fn name(pair: Pair<Rule>) -> Name {
         Rule::dot_identifier => dot_identifier(pair.into_inner()),
         Rule::index_identifier => index_identifier(pair.into_inner()),
         Rule::identifier => Name::Name(identifier(pair)),
+        Rule::name => name(pair),
         _ => unreachable!()
     }
 }
@@ -63,6 +64,7 @@ fn fncall(pair: Pair<Rule>) -> FnCall {
         Box::new(match call_operand.as_rule() {
             Rule::name => Value::Name(name(call_operand)),
             Rule::group => value(call_operand),
+            Rule::fncall => Value::FnCall(fncall(call_operand)),
             _ => unreachable!()
         }),
         pairs.into_iter().map(value).collect()
@@ -169,6 +171,7 @@ fn expr(pair: Pair<Rule>) -> Expr {
         Rule::while_loop => while_loop(pair.into_inner()),
         Rule::if_then_else => if_then_else(pair.into_inner()),
         Rule::value => Expr::Value(value(pair)),
+        Rule::expr => expr(pair),
         _ => unreachable!()
     }
 
@@ -177,8 +180,10 @@ fn expr(pair: Pair<Rule>) -> Expr {
 
 
 pub fn parse(input: &str) -> Result<Suite, String> {
-    let pairs = Xasm::parse(Rule::program, input)
-                    .unwrap_or_else(|e| panic!("{}", e));
+    let pairs = match Xasm::parse(Rule::program, input) {
+                    Ok(parsed) => Ok(parsed),
+                    Err(e) => Err(format!("{}", e))
+                }?;
 
     let mut result = vec![];
     // println!("pairs {:#?}", pairs);

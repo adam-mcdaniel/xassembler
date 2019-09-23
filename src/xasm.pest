@@ -12,7 +12,13 @@ string_literal = @{ "\"" ~ literal_char* ~ "\"" }
 literal_char = { escape_sequence | (!"\"" ~ ANY) }
 escape_sequence = _{ "\\\\" | "\\\"" | "\\\'" | "\\n" | "\\r" | "\\t" | "\\0" }
 
-number_literal = @{ "-"? ~ ("0" | (nonzero ~ digit*)) }
+
+// potentially signed integer
+int = _{ ("0") | ("-"? ~ nonzero ~ digit*) }
+exp = _{ ^"e" }
+float = _{ ("-"? ~ int ~ "." ~ digit* ~ (exp ~ int)?) | "NAN" | "INF" | "NEGINF" }
+number_literal = @{ float | int }
+// number_literal = @{ "-"? ~ ("0" | (nonzero ~ digit*)) }
 digit = _{ "0" | nonzero | "_" }
 nonzero = _{ '1'..'9' }
 
