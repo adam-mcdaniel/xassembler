@@ -1,0 +1,57 @@
+program = _{ SOI ~ expr+ ~ EOI }
+
+expr = { (assignment ~ ";"?) | class_def | function_def | while_loop | if_then_else | (value ~ ";"?)}
+value = { function | fncall | name | literal | group }
+assignment = { name ~ "=" ~ value }
+
+
+literal = {foreign_function_literal | string_literal | number_literal}
+
+
+string_literal = @{ "\"" ~ literal_char* ~ "\"" }
+literal_char = { escape_sequence | (!"\"" ~ ANY) }
+escape_sequence = _{ "\\\\" | "\\\"" | "\\\'" | "\\n" | "\\r" | "\\t" | "\\0" }
+
+
+// potentially signed integer
+int = _{ ("0") | ("-"? ~ nonzero ~ digit*) }
+exp = _{ ^"e" }
+float = _{ ("-"? ~ int ~ "." ~ digit* ~ (exp ~ int)?) | "NAN" | "INF" | "NEGINF" }
+number_literal = @{ float | int }
+digit = _{ "0" | nonzero | "_" }
+nonzero = _{ '1'..'9' }
+
+foreign_function_literal = { "@" ~ identifier }
+
+
+identifier = @{ !keyword ~ (alpha | "_") ~ (alphanumeric | "_")* }
+dot_identifier = { (identifier | group) ~ ("." ~ identifier)+ }
+index_identifier = { (identifier | group) ~ ("[" ~ value ~ "]")+ }
+name = { dot_identifier | index_identifier | identifier }
+
+fncall = { (name | group) ~ "(" ~ (value ~ ",")* ~ value? ~ ")" }
+
+args = { "(" ~ (identifier ~ ",")* ~ identifier? ~ ")" }
+function = { "fn" ~ args ~ suite}
+function_def = { "fn" ~ name ~ args ~ suite }
+class_def = { "class" ~ name ~ "{" ~ function_def* ~ "}"}
+while_loop = { "while" ~ value ~ suite }
+if_then_else = {"if" ~ value ~ suite ~ ("else" ~ suite)? }
+suite = { "{" ~ expr* ~ "}" }
+
+group = { "(" ~ value ~ ")" }
+
+
+keyword = {
+    "while" | "if" | "else" | "fn" | "class"
+}
+
+
+alpha = _{ 'a'..'z' | 'A'..'Z' }
+alphanumeric = _{ alpha | '0'..'9' }
+
+WHITESPACE = _{ (" " | "\t" | "\u{000C}" | "\r" | "\n")+ }
+
+COMMENT = _{ block_comment | line_comment }
+line_comment = _{ "//" ~ (!("\r" | "\n") ~ ANY)* ~ ("\n" | "\r\n" | "\r" | EOI) }
+block_comment = _{ "/*" ~ ((!("*/") ~ ANY) | block_comment)* ~ "*/" }
