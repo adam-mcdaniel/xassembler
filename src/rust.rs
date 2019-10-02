@@ -57,7 +57,7 @@ impl Target for Rust {
         body: impl ToString,
     ) -> String {
         format!(
-            "{body}{list}{element}{counter}{MACHINE}.while_loop();",
+            "{body}{list}{element}{counter}{MACHINE}.for_loop();",
             MACHINE = MACHINE_NAME,
             counter = counter.to_string(),
             element = element.to_string(),

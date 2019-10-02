@@ -24,7 +24,7 @@ nonzero = _{ '1'..'9' }
 foreign_function_literal = { "@" ~ identifier }
 
 
-identifier = @{ !keyword ~ (alpha | "_") ~ (alphanumeric | "_")* }
+identifier = @{ (alpha | "_") ~ (alphanumeric | "_")* }
 dot_identifier = { (identifier | group) ~ ("." ~ identifier)+ }
 index_identifier = { (identifier | group) ~ ("[" ~ value ~ "]")+ }
 name = { dot_identifier | index_identifier | identifier }
@@ -42,10 +42,6 @@ suite = { "{" ~ expr* ~ "}" }
 
 group = { "(" ~ value ~ ")" }
 
-
-keyword = {
-    "while" | "if" | "else" | "fn" | "class" | "for"
-}
 
 
 alpha = _{ 'a'..'z' | 'A'..'Z' }

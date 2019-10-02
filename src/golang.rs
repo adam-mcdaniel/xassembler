@@ -57,7 +57,7 @@ impl Target for Golang {
         body: impl ToString,
     ) -> String {
         format!(
-            "{body}{list}{element}{counter}{MACHINE}.WhileLoop()\n",
+            "{body}{list}{element}{counter}{MACHINE}.ForLoop()\n",
             MACHINE = MACHINE_NAME,
             counter = counter.to_string(),
             element = element.to_string(),
