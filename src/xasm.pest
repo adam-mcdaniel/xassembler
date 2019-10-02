@@ -1,6 +1,6 @@
 program = _{ SOI ~ expr+ ~ EOI }
 
-expr = { (assignment ~ ";"?) | class_def | function_def | while_loop | if_then_else | (value ~ ";"?)}
+expr = { (assignment ~ ";"?) | class_def | function_def | while_loop | for_loop | if_then_else | (value ~ ";"?)}
 value = { function | fncall | name | literal | group }
 assignment = { name ~ "=" ~ value }
 
@@ -44,7 +44,7 @@ group = { "(" ~ value ~ ")" }
 
 
 keyword = {
-    "while" | "if" | "else" | "fn" | "class"
+    "while" | "if" | "else" | "fn" | "class" | "for"
 }
 
 
