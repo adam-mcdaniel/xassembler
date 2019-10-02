@@ -36,6 +36,7 @@ function = { "fn" ~ args ~ suite}
 function_def = { "fn" ~ name ~ args ~ suite }
 class_def = { "class" ~ name ~ "{" ~ function_def* ~ "}"}
 while_loop = { "while" ~ value ~ suite }
+for_loop = { "for" ~ identifier ~ "," ~ identifier ~ "in" ~ value ~ suite }
 if_then_else = {"if" ~ value ~ suite ~ ("else" ~ suite)? }
 suite = { "{" ~ expr* ~ "}" }
 

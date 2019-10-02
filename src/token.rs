@@ -82,7 +82,10 @@ impl<T: Target> Compile<T> for FunctionDef {
     fn compile(self) -> Result<String, Error> {
         let FunctionDef(name, function) = self;
 
-        Ok(Compile::<T>::compile(Expr::Assignment(name, Value::Function(function)))?)
+        Ok(Compile::<T>::compile(Expr::Assignment(
+            name,
+            Value::Function(function),
+        ))?)
     }
 }
 
@@ -128,6 +131,12 @@ impl<T: Target> Compile<T> for Name {
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub enum Expr {
     Assignment(Name, Value),
+    ForLoop {
+        counter: Identifier,
+        element: Identifier,
+        list: Value,
+        body: Suite,
+    },
     WhileLoop(Value, Suite),
     IfThenElse(Value, Suite, Suite),
     FunctionDef(FunctionDef),
@@ -139,12 +148,28 @@ impl<T: Target> Compile<T> for Expr {
     fn compile(self) -> Result<String, Error> {
         match self {
             Self::Assignment(name, value) => match name {
-                Name::Name(n) => Ok(T::store(T::copy(Compile::<T>::compile(value)?) + &Compile::<T>::compile(n)?)),
-                otherwise => Ok(T::assign(T::copy(Compile::<T>::compile(value)?) + &Compile::<T>::compile(otherwise)?)),
+                Name::Name(n) => Ok(T::store(
+                    T::copy(Compile::<T>::compile(value)?) + &Compile::<T>::compile(n)?,
+                )),
+                otherwise => Ok(T::assign(
+                    T::copy(Compile::<T>::compile(value)?) + &Compile::<T>::compile(otherwise)?,
+                )),
             },
-            Self::WhileLoop(condition, body) => {
-                Ok(T::while_loop(Compile::<T>::compile(condition)?, Compile::<T>::compile(body)?))
-            }
+            Self::WhileLoop(condition, body) => Ok(T::while_loop(
+                Compile::<T>::compile(condition)?,
+                Compile::<T>::compile(body)?,
+            )),
+            Self::ForLoop {
+                counter,
+                element,
+                list,
+                body,
+            } => Ok(T::for_loop(
+                Compile::<T>::compile(counter)?,
+                Compile::<T>::compile(element)?,
+                Compile::<T>::compile(list)?,
+                Compile::<T>::compile(body)?,
+            )),
             Self::IfThenElse(condition, then_body, else_body) => Ok(T::if_then_else(
                 Compile::<T>::compile(condition)?,
                 Compile::<T>::compile(then_body)?,
@@ -219,6 +244,9 @@ impl<T: Target> Compile<T> for StructDef {
 
         let body = Suite(exprs);
         let constructor: Function = Function(vec![], body);
-        Ok(Compile::<T>::compile(Expr::Assignment(name, Value::Function(constructor)))?)
+        Ok(Compile::<T>::compile(Expr::Assignment(
+            name,
+            Value::Function(constructor),
+        ))?)
     }
 }

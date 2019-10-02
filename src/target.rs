@@ -1,13 +1,9 @@
-
-
 use crate::{Identifier, Value};
 
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
-
 pub const MACHINE_NAME: &str = "xasm";
-
 
 #[derive(Clone, Debug, PartialEq, PartialOrd, Eq, Ord)]
 pub enum Error {
@@ -17,7 +13,6 @@ pub enum Error {
 pub trait Compile<T: Target> {
     fn compile(self) -> Result<String, Error>;
 }
-
 
 pub trait Target {
     fn quote(name: impl ToString) -> String {
@@ -32,10 +27,17 @@ pub trait Target {
     fn func(value: impl ToString) -> String;
     fn foreign_func(value: impl ToString) -> String;
     fn while_loop(condition: impl ToString, body: impl ToString) -> String;
+    fn for_loop(
+        counter_identifier: impl ToString,
+        element_identifier: impl ToString,
+        list_value: impl ToString,
+        body: impl ToString,
+    ) -> String;
     fn if_then_else(
         condition: impl ToString,
         then_fn: impl ToString,
-        else_fn: impl ToString) -> String;
+        else_fn: impl ToString,
+    ) -> String;
     fn call(func: impl ToString) -> String;
     fn method_call(method_name: impl ToString) -> String;
     fn assign(pointer_value: impl ToString) -> String;

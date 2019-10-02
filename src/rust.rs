@@ -1,5 +1,4 @@
-
-use crate::{Target, Compile, MACHINE_NAME, Value, Identifier};
+use crate::{Compile, Identifier, Target, Value, MACHINE_NAME};
 
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
@@ -48,6 +47,22 @@ impl Target for Rust {
             "Value::function({name}, &{MACHINE})",
             name = name.to_string(),
             MACHINE = MACHINE_NAME
+        )
+    }
+
+    fn for_loop(
+        counter: impl ToString,
+        element: impl ToString,
+        list: impl ToString,
+        body: impl ToString,
+    ) -> String {
+        format!(
+            "{body}{list}{element}{counter}{MACHINE}.while_loop();",
+            MACHINE = MACHINE_NAME,
+            counter = counter.to_string(),
+            element = element.to_string(),
+            list = list.to_string(),
+            body = Self::push(Self::func(body))
         )
     }
 
@@ -102,7 +117,8 @@ impl Target for Rust {
         let mut result = Compile::<Self>::compile(head).unwrap();
         for ident in tail {
             let Identifier(name) = ident;
-            result += &(Self::push(Self::string(Self::quote(name))) + &format!("{}.index();", MACHINE_NAME));
+            result += &(Self::push(Self::string(Self::quote(name)))
+                + &format!("{}.index();", MACHINE_NAME));
         }
         result
     }
@@ -110,9 +126,9 @@ impl Target for Rust {
     fn indexname(head: Value, tail: Vec<Value>) -> String {
         let mut result = Compile::<Self>::compile(head).unwrap();
         for value in tail {
-            result += &(Compile::<Self>::compile(value).unwrap() + &format!("{}.index();", MACHINE_NAME));
+            result +=
+                &(Compile::<Self>::compile(value).unwrap() + &format!("{}.index();", MACHINE_NAME));
         }
         result
     }
-
 }
