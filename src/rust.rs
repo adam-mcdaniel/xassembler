@@ -44,7 +44,7 @@ impl Target for Rust {
 
     fn foreign_func(name: impl ToString) -> String {
         format!(
-            "Value::function({name}, &{MACHINE})",
+            "Value::function(xasm_{name}, &{MACHINE})",
             name = name.to_string(),
             MACHINE = MACHINE_NAME
         )
