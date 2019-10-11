@@ -34,6 +34,14 @@ impl Target for Rust {
         format!("{}{}.copy();", value.to_string(), MACHINE_NAME)
     }
 
+    fn block(body: impl ToString) -> String {
+        format!(
+            "Value::function(|{MACHINE}: &mut Machine| {{{func}}}, &Machine::new())",
+            func = body.to_string(),
+            MACHINE = MACHINE_NAME
+        )
+    }
+
     fn func(body: impl ToString) -> String {
         format!(
             "Value::function(|{MACHINE}: &mut Machine| {{{func}}}, &{MACHINE})",
@@ -44,9 +52,8 @@ impl Target for Rust {
 
     fn foreign_func(name: impl ToString) -> String {
         format!(
-            "Value::function(xasm_{name}, &{MACHINE})",
-            name = name.to_string(),
-            MACHINE = MACHINE_NAME
+            "Value::function(xasm_{name}, &Machine::new())",
+            name = name.to_string()
         )
     }
 
@@ -62,7 +69,7 @@ impl Target for Rust {
             counter = counter.to_string(),
             element = element.to_string(),
             list = list.to_string(),
-            body = Self::push(Self::func(body))
+            body = Self::push(Self::block(body))
         )
     }
 
@@ -70,8 +77,8 @@ impl Target for Rust {
         format!(
             "{body}{condition}{MACHINE}.while_loop();",
             MACHINE = MACHINE_NAME,
-            condition = Self::push(Self::func(condition)),
-            body = Self::push(Self::func(body))
+            condition = Self::push(Self::block(condition)),
+            body = Self::push(Self::block(body))
         )
     }
 
@@ -83,9 +90,9 @@ impl Target for Rust {
         format!(
             "{else_fn}{then_fn}{condition}{MACHINE}.if_then_else();",
             MACHINE = MACHINE_NAME,
-            condition = Self::push(Self::func(condition)),
-            then_fn = Self::push(Self::func(then_fn)),
-            else_fn = Self::push(Self::func(else_fn))
+            condition = Self::push(Self::block(condition)),
+            then_fn = Self::push(Self::block(then_fn)),
+            else_fn = Self::push(Self::block(else_fn))
         )
     }
 

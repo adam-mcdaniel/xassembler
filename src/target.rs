@@ -24,7 +24,8 @@ pub trait Target {
     fn number(value: impl ToString) -> String;
     fn string(value: impl ToString) -> String;
     fn copy(value: impl ToString) -> String;
-    fn func(value: impl ToString) -> String;
+    fn block(body: impl ToString) -> String;
+    fn func(body: impl ToString) -> String;
     fn foreign_func(value: impl ToString) -> String;
     fn while_loop(condition: impl ToString, body: impl ToString) -> String;
     fn for_loop(
